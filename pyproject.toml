@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["p3dimgui"]
+exclude = ["demo.py", '*.ini']
+
+[project]
+name = "panda3d-imgui"
+version = "1.0.0"
+authors = [
+  { name="Little Cat", email="toontownlittlecat@gmail.com" },
+]
+description = "A Dear ImGui backend for Python-based Panda3D projects with built-in utilities."
+readme = "README.md"
+
+# Maching imgui-bundle requirement
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "imgui-bundle==1.92.4",
+    "pyperclip",
+]
+
+keywords = ["Panda3D", "Dear ImGui", "imgui-bundle"]
+
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/LittleToonCat/panda3d-imgui"
+Issues = "https://github.com/LittleToonCat/panda3d-imgui/issues"

@@ -1,0 +1,2 @@
+imgui-bundle==1.92.4
+pyperclip
