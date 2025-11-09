@@ -290,6 +290,9 @@ class ImGuiBackend(DirectObject):
         # hold down shift to input capital letters.
         # Windows/Linux handles this just fine.
         button = ButtonRegistry.ptr().getButton(keyName)
+        if keyName == ' ':
+            # There is no space button on the ButtonRegistry.
+            button = KeyboardButton.space()
         if button.hasAsciiEquivalent():
             self.io.add_input_character(ord(button.getAsciiEquivalent()))
 
