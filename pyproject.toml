@@ -8,7 +8,7 @@ exclude = ["demo.py", '*.ini']
 
 [project]
 name = "panda3d-imgui"
-version = "1.0.0"
+version = "1.0.1"
 authors = [
   { name="Little Cat", email="toontownlittlecat@gmail.com" },
 ]
