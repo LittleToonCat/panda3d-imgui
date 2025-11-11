@@ -6,8 +6,11 @@ class IntervalTimeSlider(DirectObject):
     def __init__(self, interval, active=True):
         DirectObject.__init__(self)
         self.interval = interval
+        self.__currentInterval = interval
 
         self.active = active
+
+        self.windowPos = None
 
         self.__firstDraw = True
         self.accept('imgui-new-frame', self.__draw)
@@ -18,12 +21,21 @@ class IntervalTimeSlider(DirectObject):
         curDuration = self.interval.getT()
         maxDuration = self.interval.getDuration()
 
+        if self.windowPos and (self.interval != self.__currentInterval):
+            imgui.set_next_window_pos(self.windowPos)
+            self.__currentInterval = self.interval
+
         if self.__firstDraw:
-            # imgui.set_next_window_content_size((784.0, 77.0))
             imgui.set_next_window_size((745,76))
             self.__firstDraw = False
         with imgui_ctx.begin(f"Time Slider \"{self.interval.getName()}\"", True,
                              imgui.WindowFlags_.no_resize.value | imgui.WindowFlags_.no_scrollbar.value | imgui.WindowFlags_.no_scroll_with_mouse.value) as (_, windowOpen):
+            if not windowOpen:
+                self.active = False
+                return
+
+            self.windowPos = imgui.get_window_pos()
+
             imgui.push_item_width(732)
             changed, value = imgui.slider_float(
                 "##slider", curDuration,
@@ -33,8 +45,6 @@ class IntervalTimeSlider(DirectObject):
             )
             imgui.pop_item_width()
 
-            if not windowOpen:
-                self.active = False
             if changed:
                 self.interval.setT(value)
 

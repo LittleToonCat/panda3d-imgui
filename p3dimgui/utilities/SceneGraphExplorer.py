@@ -12,6 +12,10 @@ class SceneGraphExplorer(DirectObject):
         if not nodePath:
             self.nodePath = base.render
 
+        self.__currentNodePath = self.nodePath
+
+        self.windowPos = None
+
         self.reparentTarget: NodePath | None = None
 
         self.flashOnClick = False
@@ -136,9 +140,17 @@ class SceneGraphExplorer(DirectObject):
         if self.__firstDraw:
             imgui.set_next_window_size((410,761))
             self.__firstDraw = False
+
+        if self.windowPos and (self.nodePath != self.__currentNodePath):
+            imgui.set_next_window_pos(self.windowPos)
+            self.__currentNodePath = self.nodePath
+
         with imgui_ctx.begin(f"Explore: {self.nodePath.getName()}", True, imgui.WindowFlags_.menu_bar) as (_, windowOpen):
             if not windowOpen:
                 self.active = False
+                return
+
+            self.windowPos = imgui.get_window_pos()
 
             with imgui_ctx.begin_menu_bar() as menuBar:
                 if menuBar:

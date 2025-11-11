@@ -8,6 +8,7 @@ class PlacePanel(DirectObject):
         DirectObject.__init__(self)
 
         self.nodePath: NodePath = nodePath
+        self.__currentNodePath: NodePath = nodePath
 
         self.active = active
 
@@ -17,6 +18,8 @@ class PlacePanel(DirectObject):
             scale[0] != scale[2] or \
             scale[1] != scale[2]:
                 self.scaleUniform = False
+
+        self.windowPos = None
 
         self.accept('imgui-new-frame', self.__draw)
 
@@ -45,11 +48,17 @@ class PlacePanel(DirectObject):
         if self.nodePath.hasColorScale():
             colorScale = self.nodePath.getColorScale()
 
+        if self.windowPos and (self.nodePath != self.__currentNodePath):
+            imgui.set_next_window_pos(self.windowPos)
+            self.__currentNodePath = self.nodePath
+
         with imgui_ctx.begin(f"Node Placer \"{self.nodePath.getName()}\"", True) as (_, windowOpen):
             if not windowOpen:
                 # Close has been clicked.
                 self.active = False
                 return
+
+            self.windowPos = imgui.get_window_pos()
 
             with imgui_ctx.begin_group():
                 imgui.text("Position")
