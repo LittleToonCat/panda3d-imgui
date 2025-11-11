@@ -125,6 +125,10 @@ class DemoBase(ShowBase):
                         if clickedDemo:
                             self.showDemoWindow = not self.showDemoWindow
 
+                        clickedOobe, _ = imgui.menu_item("OOBE Mode", "", bool(self.bboard.get('oobeEnabled')), True)
+                        if clickedOobe:
+                            self.oobe()
+
                         clickedQuit, _ = imgui.menu_item("Quit", "Cmd+Q" if sys.platform == 'darwin' else "Alt+F4", False, True)
                         if clickedQuit:
                             self.userExit()

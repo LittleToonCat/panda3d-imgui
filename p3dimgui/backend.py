@@ -336,7 +336,6 @@ class ImGuiBackend(DirectObject):
 
     def __setupButton(self):
         self.notify.debug("__setupButton")
-        # FIXME: THe event names gets replaced when base.oobe() is called.
         base.buttonThrowers[0].node().setButtonDownEvent('buttonDown')
         base.buttonThrowers[0].node().setButtonUpEvent('buttonUp')
         base.buttonThrowers[0].node().setKeystrokeEvent('keystroke')
@@ -350,9 +349,29 @@ class ImGuiBackend(DirectObject):
         def __keyStroke(keyName):
             self.__onKeystroke(keyName)
 
+        def __handleOobe():
+            if base.bboard.get('oobeEnabled'):
+                self.ignore('buttonDown')
+                self.ignore('buttonUp')
+                self.accept('oobe-down', __buttonDown)
+                self.accept('oobe-up', __buttonUp)
+            else:
+                self.ignore('oobe-down')
+                self.ignore('oobe-up')
+
+                # Set the names to the button events back.
+                base.buttonThrowers[0].node().setButtonDownEvent('buttonDown')
+                base.buttonThrowers[0].node().setButtonUpEvent('buttonUp')
+                self.accept('buttonDown', __buttonDown)
+                self.accept('buttonUp', __buttonUp)
+
         self.accept('buttonDown', __buttonDown)
         self.accept('buttonUp', __buttonUp)
         self.accept('keystroke', __keyStroke)
+
+        self.accept(base.bboard.getEvent('oobeEnabled'), __handleOobe)
+
+        # self.addTask(__handleOobe, appendTask=True)
 
     def __setupRender(self):
         self.notify.debug("__setupRender")
