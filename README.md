@@ -6,6 +6,8 @@ A [Dear ImGui](https://github.com/ocornut/imgui) backend for Python-based Panda3
 This module will allow you to use and create Dear ImGui user interfaces within a Panda3D window, preferbly used to create content creation/debugging tools.
 (It uses [Dear ImGui Bundle](https://pthom.github.io/imgui_bundle/) which contains not only the Python bindings for Dear ImGui, but with other goodies as well.
 
+It is based on the [C++ based project](https://github.com/bluekyu/panda3d_imgui) with the similar name.  The difference that it is ported to Python for such users to use on their projects.
+
 ## How to use
 You can install the module through pip:
 ```
