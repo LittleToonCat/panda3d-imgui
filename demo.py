@@ -88,12 +88,23 @@ class DemoBase(ShowBase):
         self.accept('imgui-new-frame', self.__newFrame)
         self.accept('`', self.__toggleImgui)
 
+        self.testTexture = None
+
     def __toggleImgui(self):
         if not self.imgui.isKeyboardCaptured():
             self.imgui.toggle()
 
     def __newFrame(self):
         # Dear ImGui commands can be placed here.
+
+        if self.testTexture:
+            with imgui_ctx.begin("Texture Test", True, imgui.WindowFlags_.always_auto_resize.value) as (_, windowOpen):
+                if not windowOpen:
+                    self.imgui.removeTexture(self.testTexture)
+                    self.testTexture = None
+                    return
+                imgui.image(self.testTexture, (256, 256))
+
         with imgui_ctx.begin_main_menu_bar() as mainMenu:
             if mainMenu:
 
@@ -121,9 +132,12 @@ class DemoBase(ShowBase):
                             else:
                                 self.timeSliderManager.intervalToTimeSliders[self.pandaPace].active = False
 
-                        clickedDemo, _ = imgui.menu_item("Show Dear ImGui Demo Window", "", self.showDemoWindow, True)
-                        if clickedDemo:
-                            self.showDemoWindow = not self.showDemoWindow
+                        clickedTexture, _ = imgui.menu_item("Show Texture Window", "", bool(self.testTexture), True)
+                        if clickedTexture:
+                            if not self.testTexture:
+                                self.testTexture = self.imgui.loadTexture('texture/Myimage01.jpg')
+
+                        _, self.showDemoWindow = imgui.menu_item("Show Dear ImGui Demo Window", "", self.showDemoWindow, True)
 
                         clickedOobe, _ = imgui.menu_item("OOBE Mode", "", bool(self.bboard.get('oobeEnabled')), True)
                         if clickedOobe:

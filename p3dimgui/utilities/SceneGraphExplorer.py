@@ -22,7 +22,6 @@ class SceneGraphExplorer(DirectObject):
         self.highlightSeq: Sequence | None = None
 
         self.rename = ''
-        self.showSetNamePopupForNode: NodePath = None
         self.focusSetNameInput = False
 
         self.__firstDraw = True
@@ -63,6 +62,8 @@ class SceneGraphExplorer(DirectObject):
             if self.flashOnClick and imgui.is_item_clicked():
                 self.flash(nodePath)
 
+            namePopupId = imgui.get_id(f"{nodePath}-namePopup")
+
             if imgui.begin_popup_context_item():
                 clickedFlash, _ = imgui.menu_item("Flash", "", False)
                 if clickedFlash:
@@ -73,10 +74,8 @@ class SceneGraphExplorer(DirectObject):
                 clickedSetName, _ = imgui.menu_item("Set Name", "", False)
                 if clickedSetName:
                     self.rename = nodePath.getName()
-                    # HACK: Calling imgui.begin_popup wouldn't work here for some reason.
-                    # Do this to call it outside the context popup statement.
-                    self.showSetNamePopupForNode = nodePath
                     self.focusSetNameInput = True
+                    imgui.open_popup(namePopupId)
 
                 imgui.separator()
 
@@ -97,15 +96,17 @@ class SceneGraphExplorer(DirectObject):
                 clickedPlace, _ = imgui.menu_item("Place", "", False)
                 if clickedPlace:
                     nodePath.place()
+
                 if nodePath != self.nodePath:
                     clickedExplore, _ = imgui.menu_item("Explore Seperately", "", False)
                     if clickedExplore:
                         nodePath.explore()
-                imgui.end_popup()
 
-            if self.showSetNamePopupForNode == nodePath:
-                self.showSetNamePopupForNode = None
-                imgui.open_popup(f"{nodePath}-namePopup")
+                    clickedDelete, _ = imgui.menu_item("Delete", "", False)
+                    if clickedDelete:
+                        nodePath.removeNode()
+
+                imgui.end_popup()
 
             with imgui_ctx.begin_popup(f"{nodePath}-namePopup") as namePopup:
                 if namePopup:
@@ -146,7 +147,7 @@ class SceneGraphExplorer(DirectObject):
             self.__currentNodePath = self.nodePath
 
         with imgui_ctx.begin(f"Explore: {self.nodePath.getName()}", True, imgui.WindowFlags_.menu_bar) as (_, windowOpen):
-            if not windowOpen:
+            if not windowOpen or not self.nodePath:
                 self.active = False
                 return
 

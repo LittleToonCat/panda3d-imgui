@@ -196,6 +196,7 @@ class ImGuiBackend(DirectObject):
         self.io.backend_flags |= imgui.BackendFlags_.renderer_has_textures.value
 
         self.vformat = None
+        self.textureCounter = 0
         self.textures: dict[int, Texture] = {}
         self.geomData: list[GeomList] = []
 
@@ -459,6 +460,27 @@ class ImGuiBackend(DirectObject):
 
         return task.cont
 
+    def loadTexture(self, texture: Texture | str) -> imgui.ImTextureRef:
+        if type(texture) == str:
+            texture = base.loader.loadTexture(texture)
+        self.notify.debug(f"loadTexture ({self.textureCounter + 1})")
+
+        self.textureCounter += 1
+        self.textures[self.textureCounter] = texture
+
+        return imgui.ImTextureRef(self.textureCounter)
+
+    def removeTexture(self, tex: imgui.ImTextureRef, unload = True):
+        texture = self.textures.get(tex.get_tex_id(), None)
+        if texture:
+            self.notify.debug(f"removeTexture ({tex.get_tex_id()})")
+
+            if unload:
+                texture.clear()
+                base.loader.unloadTexture(texture)
+            del texture
+            del self.textures[tex.get_tex_id()]
+
     def __updateTextures(self):
         for tex in imgui.get_platform_io().textures:
             if tex.status != imgui.ImTextureStatus.ok:
@@ -478,7 +500,7 @@ class ImGuiBackend(DirectObject):
 
         match tex.status:
             case imgui.ImTextureStatus.want_create:
-                self.notify.debug(f"__updateTexture ({tex.unique_id}): create ({tex.width}x{tex.height})")
+                self.notify.debug(f"__updateTexture ({self.textureCounter + 1}): create ({tex.width}x{tex.height})")
                 assert tex.tex_id == 0
                 assert tex.backend_user_data is None
                 assert tex.format == imgui.ImTextureFormat.rgba32
@@ -491,12 +513,13 @@ class ImGuiBackend(DirectObject):
 
                 __setPixelsToTexture(texture)
 
-                self.textures[tex.unique_id] = texture
+                self.textureCounter += 1
+                self.textures[self.textureCounter] = texture
 
-                tex.tex_id = tex.unique_id
+                tex.tex_id = self.textureCounter
                 tex.status = imgui.ImTextureStatus.ok
             case imgui.ImTextureStatus.want_updates:
-                self.notify.debug(f"__updateTexture ({tex.unique_id}): update ({tex.width}x{tex.height})")
+                self.notify.debug(f"__updateTexture ({tex.tex_id}): update ({tex.width}x{tex.height})")
 
                 __setPixelsToTexture(self.textures[tex.tex_id])
 

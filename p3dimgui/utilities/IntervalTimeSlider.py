@@ -30,7 +30,7 @@ class IntervalTimeSlider(DirectObject):
             self.__firstDraw = False
         with imgui_ctx.begin(f"Time Slider \"{self.interval.getName()}\"", True,
                              imgui.WindowFlags_.no_resize.value | imgui.WindowFlags_.no_scrollbar.value | imgui.WindowFlags_.no_scroll_with_mouse.value) as (_, windowOpen):
-            if not windowOpen:
+            if not windowOpen or not self.interval:
                 self.active = False
                 return
 
