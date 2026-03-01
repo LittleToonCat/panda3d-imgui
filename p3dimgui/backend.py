@@ -296,6 +296,8 @@ class ImGuiBackend(DirectObject):
             button = KeyboardButton.space()
         if button.hasAsciiEquivalent():
             self.io.add_input_character(ord(button.getAsciiEquivalent()))
+        else:
+            self.io.add_input_character(ord(keyName))
 
     def __setupGeom(self):
         self.notify.debug("__setupGeom")
