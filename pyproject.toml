@@ -24,7 +24,7 @@ classifiers = [
 
 dependencies = [
     "panda3d",
-    "imgui-bundle==1.92.4",
+    "imgui-bundle==1.92.700",
     "pyperclip"
 ]
 
