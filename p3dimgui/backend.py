@@ -11,10 +11,12 @@ from panda3d.core import (
     GeomVertexData,
     GeomVertexArrayFormat,
     GeomVertexFormat,
+    GraphicsBuffer,
     InternalName,
     KeyboardButton,
     MouseButton,
     NodePath,
+    PNMImage,
     RenderState,
     SamplerState,
     Shader,
@@ -465,10 +467,35 @@ class ImGuiBackend(DirectObject):
             texture = base.loader.loadTexture(texture)
         self.notify.debug(f"loadTexture ({self.textureCounter + 1})")
 
+        pnm = PNMImage()
+        if texture.store(pnm):
+            pnm.flip(False, True, False)
+            texture.load(pnm)
+        else:
+            self.notify.warning("loadTexture: Failed to invert texture, it may look incorrectly.  If you're creating a render to texture buffer, call loadGraphicsBuffer with the buffer instead.")
+
         self.textureCounter += 1
         self.textures[self.textureCounter] = texture
 
         return imgui.ImTextureRef(self.textureCounter)
+
+    def loadGraphicsBuffer(self, buffer: GraphicsBuffer) -> imgui.ImTextureRef:
+        self.notify.debug(f"loadGraphicsBuffer ({self.textureCounter + 1})")
+        texture = buffer.getTexture()
+
+        self.textureCounter += 1
+        self.textures[self.textureCounter] = texture
+
+        base.taskMgr.add(self.__invertBuffer, f"imgui-invert-buffer-{self.textureCounter}", extraArgs=[buffer], appendTask=True)
+
+        return imgui.ImTextureRef(self.textureCounter)
+
+    @staticmethod
+    def __invertBuffer(buffer, task):
+        if buffer.inverted:
+            return task.done
+        buffer.inverted = True
+        return task.cont
 
     def removeTexture(self, tex: imgui.ImTextureRef, unload = True):
         texture = self.textures.get(tex.get_tex_id(), None)
@@ -563,3 +590,10 @@ class ImGuiBackend(DirectObject):
     @staticmethod
     def __getClipboardText(_):
         return pyperclip.paste()
+
+    # camelCase to snake_case
+    is_mouse_captured = isMouseCaptured
+    is_keyboard_captured = isKeyboardCaptured
+    load_texture = loadTexture
+    load_graphics_buffer = loadGraphicsBuffer
+    remove_texture = removeTexture

@@ -99,11 +99,11 @@ class DemoBase(ShowBase):
 
         if self.testTexture:
             with imgui_ctx.begin("Texture Test", True, imgui.WindowFlags_.always_auto_resize.value) as (_, windowOpen):
-                if not windowOpen:
+                if windowOpen:
+                    imgui.image(self.testTexture, (256, 256))
+                else:
                     self.imgui.removeTexture(self.testTexture)
                     self.testTexture = None
-                    return
-                imgui.image(self.testTexture, (256, 256))
 
         with imgui_ctx.begin_main_menu_bar() as mainMenu:
             if mainMenu:
